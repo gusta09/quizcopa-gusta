@@ -66,14 +66,32 @@
 
     <section id="quiz-section" class="quiz-area">
         <h2 class="section-title">DESAFIO COPA 2026</h2>
-    <form id="quizForm">
-        <div id="questions-container"></div>
+  <form id="quizForm">
+        <div style="margin-bottom: 30px;">
+            <label style="color: var(--white); font-weight: 700; font-size: 1.2rem;">Seu Nome ou Nickname:</label>
+            <input type="text" id="playerName" placeholder="Digite aqui para entrar no ranking..." required 
+                   style="width: 100%; padding: 15px; border-radius: 15px; border: 2px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white; margin-top: 10px; font-size: 1rem; outline: none;">
+        </div>
+
+        <div id="questions-container">
+            <p style="text-align: center; color: var(--primary);">Carregando perguntas da base de dados...</p>
+        </div>
+        
         <div class="btn-container">
             <button type="button" id="submitBtn" onclick="processQuiz()">Enviar Respostas</button>
-            <button type="button" id="resetBtn" onclick="location.reload()" style="display:none; background: #666;">Reiniciar Quiz</button>
+            <button type="button" id="resetBtn" onclick="location.reload()" style="display:none; background: #333;">Jogar Novamente</button>
         </div>
     </form>
-    <div id="result-area"></div>
+    
+    <div id="result-area">
+        <h3 id="mensagem-resultado" style="font-size: 2rem; margin-bottom: 10px;"></h3>
+        <p style="font-size: 1.2rem; margin-bottom: 30px;">Sua pontuação: <strong id="pontos-resultado" style="color: var(--primary); font-size: 1.5rem;">0</strong></p>
+        
+        <div id="ranking-area" style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; text-align: left;">
+            <h4 style="color: var(--secondary); text-align: center; margin-bottom: 20px;"><i class="fa-solid fa-trophy"></i> TOP 10 GLOBAL</h4>
+            <ol id="lista-ranking" style="color: white; padding-left: 20px; line-height: 1.8;"></ol>
+        </div>
+    </div>
     </section>
 
     <section class="how-it-works">
