@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz: História das Copas do Mundo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-content">
+        <div class="logo">🏆 COPA 2026</div>
+        <ul class="nav-menu">
+            <li><a href="#">Início</a></li>
+            <li><a href="#" class="active">Questionário</a></li>
+            <li><a href="#">Ranking</a></li>
+            <li><a href="#">Curiosidades</a></li>
+        </ul>
+        <button class="btn-login"><i class="fa-regular fa-user"></i> Entrar</button>
+    </div>
+</nav>
+
+<div class="container">
+    <section class="hero">
+        <div class="hero-text">
+            <span class="badge">QUESTIONÁRIO OFICIAL</span>
+            <h1>TESTE SEU<br>CONHECIMENTO<br>SOBRE A COPA<br><span class="highlight">DO MUNDO 2026!</span></h1>
+            <p class="subtitle">Responda perguntas, desafie seus amigos e mostre que você é fera quando o assunto é futebol!</p>
+            <button class="btn-main" onclick="document.getElementById('quiz-section').scrollIntoView({behavior:'smooth'})">
+                <i class="fa-solid fa-circle-play"></i> COMEÇAR QUESTIONÁRIO
+            </button>
+            
+            <div class="hero-mini-cards">
+                <div class="mini-card"><i class="fa-solid fa-trophy"></i> PERGUNTAS ATUALIZADAS</div>
+                <div class="mini-card"><i class="fa-solid fa-chart-line"></i> VEJA SEU DESEMPENHO</div>
+                <div class="mini-card"><i class="fa-solid fa-users"></i> DESAFIE SEUS AMIGOS</div>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="https://digitalhub.fifa.com/transform/5225d70e-f495-467f-9f75-296538f51954/World-Cup-Trophy-at-the-Final-of-the-FIFA-World-Cup-Qatar-2022" alt="Taça da Copa">
+        </div>
+    </section>
+
+    <section class="stats-grid">
+        <div class="stat-card">
+            <i class="fa-regular fa-calendar-days"></i>
+            <h3>2026</h3>
+            <p>A maior Copa da história</p>
+            <small>3 países, 48 seleções, 104 jogos</small>
+        </div>
+        <div class="stat-card">
+            <i class="fa-solid fa-earth-americas"></i>
+            <h3>3 PAÍSES</h3>
+            <p>Cada sede, uma história</p>
+            <small>Estados Unidos, Canadá e México</small>
+        </div>
+        <div class="stat-card">
+            <i class="fa-solid fa-ranking-star"></i>
+            <h3>NOVO FORMATO</h3>
+            <p>Mais jogos, mais emoção</p>
+            <small>Torneio gigante</small>
+        </div>
+    </section>
+
+    <section id="quiz-section" class="quiz-area">
+        <h2 class="section-title">DESAFIO COPA 2026</h2>
+    <form id="quizForm">
+        <div id="questions-container"></div>
+        <div class="btn-container">
+            <button type="button" id="submitBtn" onclick="processQuiz()">Enviar Respostas</button>
+            <button type="button" id="resetBtn" onclick="location.reload()" style="display:none; background: #666;">Reiniciar Quiz</button>
+        </div>
+    </form>
+    <div id="result-area"></div>
+    </section>
+
+    <section class="how-it-works">
+        <h2 class="section-title">COMO FUNCIONA?</h2>
+        <div class="steps-container">
+            <div class="step">
+                <div class="step-num">1</div>
+                <i class="fa-solid fa-clipboard-list"></i>
+                <h4>RESPONDA</h4>
+                <p>Perguntas sobre seleções, jogadores e história.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <i class="fa-solid fa-stopwatch"></i>
+                <h4>ACUMULE PONTOS</h4>
+                <p>Quanto mais acertar, maior sua pontuação.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <i class="fa-solid fa-award"></i>
+                <h4>SUBA NO RANKING</h4>
+                <p>Compare sua posição com outros jogadores.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <i class="fa-solid fa-share-nodes"></i>
+                <h4>COMPARTILHE</h4>
+                <p>Desafie amigos e publique resultados.</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<footer class="footer">
+    <div class="logo">🏆 COPA 2026</div>
+    <p>A paixão é mundial. O conhecimento te leva mais longe.</p>
+    <div class="social-icons">
+        <i class="fa-brands fa-instagram"></i>
+        <i class="fa-brands fa-x-twitter"></i>
+        <i class="fa-brands fa-tiktok"></i>
+        <i class="fa-brands fa-youtube"></i>
+    </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
