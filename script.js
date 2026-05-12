@@ -46,9 +46,19 @@ const questionPool = [
     { q: "Qual seleção venceu a Copa do Mundo FIFA de 1962?", options: ["Brasil", "Tchecoslováquia", "Uruguai"], correct: 0 }
 ];
 
+
 let quizData = [];
+let startTime;
+let timerInterval;
+let timerStarted = false;
+let timeElapsed = 0;
 
 function loadQuiz() {
+    // Resetar variáveis de tempo ao recarregar
+    timerStarted = false;
+    timeElapsed = 0;
+    clearInterval(timerInterval);
+    
     quizData = [...questionPool]
         .sort(() => Math.random() - 0.5)
         .slice(0, 15);
@@ -64,7 +74,7 @@ function loadQuiz() {
         
         let optionsHTML = data.options.map((opt, i) => `
             <label class="option-label">
-                <input type="radio" name="question${index}" value="${i}">
+                <input type="radio" name="question${index}" value="${i}" onchange="startTimerOnFirstClick()">
                 <span class="option-card-text">
                     <span class="option-letter">${String.fromCharCode(65 + i)}</span>
                     <span class="option-name">${opt}</span>
@@ -80,74 +90,99 @@ function loadQuiz() {
     });
 }
 
+// Função que inicia o cronômetro apenas uma vez
+function startTimerOnFirstClick() {
+    if (!timerStarted) {
+        timerStarted = true;
+        startTime = Date.now();
+        
+        // Atualiza o contador na tela a cada segundo (Opcional)
+        timerInterval = setInterval(() => {
+            timeElapsed = Math.floor((Date.now() - startTime) / 1000);
+            updateTimerUI(timeElapsed);
+        }, 1000);
+    }
+}
+
+// Função para exibir o tempo (Crie uma <div id="timer"></div> no seu HTML)
+function updateTimerUI(seconds) {
+    const timerDisplay = document.getElementById('timer-display');
+    if (timerDisplay) {
+        timerDisplay.innerText = `Tempo: ${seconds}s`;
+    }
+}
+
 function processQuiz() {
-    // 1. Pega o nome do jogador do input que criamos no HTML
     const nomeJogador = document.getElementById('playerName')?.value?.trim();
     if (!nomeJogador) {
-        alert("Por favor, digite seu nome ou nickname lá em cima antes de enviar!");
-        document.getElementById('playerName').focus();
-        window.scrollTo({ top: document.getElementById('playerName').offsetTop - 100, behavior: 'smooth' });
+        alert("Por favor, digite seu nome antes de enviar!");
         return;
     }
 
-    let score = 0;
-    const total = quizData.length;
+    // Para o cronômetro imediatamente
+    clearInterval(timerInterval);
+    const tempoFinal = Math.floor((Date.now() - startTime) / 1000);
+
+    let acertos = 0;
     const form = document.getElementById('quizForm');
 
-    // 2. Corrige a prova
     quizData.forEach((data, index) => {
         const selected = form.querySelector(`input[name="question${index}"]:checked`);
         const qBlock = document.getElementById(`q-block-${index}`);
-        
-        // Bloqueia as opções para o jogador não mudar a resposta depois de enviar
         form.querySelectorAll(`input[name="question${index}"]`).forEach(inp => inp.disabled = true);
         
-        if (selected) {
-            const answerIndex = parseInt(selected.value);
-            if (answerIndex === data.correct) {
-                score++;
-                qBlock.classList.add('correct-answer');
-            } else {
-                qBlock.classList.add('wrong-answer');
-            }
+        if (selected && parseInt(selected.value) === data.correct) {
+            acertos++;
+            qBlock.classList.add('correct-answer');
         } else {
             qBlock.classList.add('wrong-answer');
         }
     });
 
-    // 3. Calcula os pontos (100 pontos por acerto) e desabilita o botão
-    const pontosTotais = score * 100;
-    document.getElementById('submitBtn').disabled = true;
-    document.getElementById('submitBtn').innerText = "Salvando Pontuação...";
+    // --- LÓGICA DE PONTUAÇÃO COM TEMPO ---
+    // Base: 100 pontos por acerto
+    const pontosBase = acertos * 100;
+    
+    // Bônus: Começa em 1000 e perde 10 pontos por segundo gasto
+    // Se demorar mais de 100 segundos, o bônus é 0.
+    const bonusTempo = Math.max(0, 1000 - (tempoFinal * 10));
+    
+    // Só ganha bônus de tempo se tiver acertado pelo menos uma questão
+    const pontosTotais = acertos > 0 ? pontosBase + bonusTempo : 0;
 
-    // 4. Envia para o Python (Vercel) e depois para o Neon DB
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('submitBtn').innerText = "Salvando...";
+
     fetch('/api/salvar_pontuacao', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ usuario: nomeJogador, pontuacao: pontosTotais })
+        body: JSON.stringify({ 
+            usuario: nomeJogador, 
+            pontuacao: pontosTotais,
+            tempo: tempoFinal // Enviando o tempo para o banco caso queira usar depois
+        })
     })
     .then(() => {
-        mostrarResultado(score, total, pontosTotais);
-        carregarRanking(); // Puxa o Top 10 atualizado
+        mostrarResultado(acertos, quizData.length, pontosTotais, tempoFinal);
+        carregarRanking();
     })
     .catch(erro => {
-        console.error("Erro ao salvar:", erro);
-        mostrarResultado(score, total, pontosTotais); // Mostra o resultado mesmo se der erro na rede
+        console.error("Erro:", erro);
+        mostrarResultado(acertos, quizData.length, pontosTotais, tempoFinal);
     });
 }
 
-// 5. Função que mostra a pontuação e constrói a área do Ranking
-function mostrarResultado(score, total, pontosTotais) {
+function mostrarResultado(score, total, pontosTotais, tempo) {
     const resultArea = document.getElementById('result-area');
     resultArea.style.display = 'block';
     const percentage = Math.round((score / total) * 100);
     
-    // Injeta o HTML do resultado + a área vazia do Ranking
     resultArea.innerHTML = `
         <h2>Resultado Final</h2>
-        <p style="font-size: 1.5rem; margin: 15px 0;">Você acertou <strong>${score}</strong> de <strong>${total}</strong>!</p>
-        <p style="font-size: 1.2rem; margin-bottom: 20px;">Pontuação Final: <strong style="color: var(--primary);">${pontosTotais} pts</strong></p>
-        <p>Aproveitamento: ${percentage}%</p>
+        <p>Você acertou <strong>${score}</strong> de <strong>${total}</strong>!</p>
+        <p>Tempo total: <strong>${tempo} segundos</strong></p>
+        <p style="font-size: 1.4rem;">Pontuação Total: <strong style="color: var(--primary);">${pontosTotais} pts</strong></p>
+        <p><small>(Incluindo bônus de agilidade)</small></p>
         
         <div id="ranking-area" style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; text-align: left; margin-top: 30px;">
             <h4 style="color: var(--secondary); text-align: center; margin-bottom: 20px;"><i class="fa-solid fa-trophy"></i> TOP 10 GLOBAL</h4>
@@ -157,15 +192,14 @@ function mostrarResultado(score, total, pontosTotais) {
         </div>
     `;
     
-    // Mantive a sua lógica de cores!
     resultArea.style.backgroundColor = percentage >= 70 ? 'rgba(24, 210, 110, 0.1)' : 'rgba(244, 197, 66, 0.1)';
     resultArea.style.border = `2px solid ${percentage >= 70 ? '#18D26E' : '#F4C542'}`;
-    resultArea.style.color = '#fff';
 
     document.getElementById('submitBtn').style.display = 'none';
     document.getElementById('resetBtn').style.display = 'inline-block';
-    window.scrollTo({ top: document.getElementById('result-area').offsetTop - 50, behavior: 'smooth' });
+    window.scrollTo({ top: resultArea.offsetTop - 50, behavior: 'smooth' });
 }
+
 
 // 6. Função para bater na Vercel e puxar o Top 10
 function carregarRanking() {
