@@ -45,7 +45,22 @@ body {
 
 }
 
-.logo { font-weight: 900; color: var(--white); font-size: 1.4rem; letter-spacing: 2px; }
+.logo {
+  font-weight: 900;
+  color: var(--white);
+  font-size: 1.4rem;
+  letter-spacing: 2px;
+  text-transform: uppercase; /* Deixa mais imponente */
+  transition: all 0.3s ease; /* Transição suave para o hover */
+  cursor: pointer;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.logo:hover {
+  letter-spacing: 4px; /* Efeito de expansão */
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+  opacity: 0.8;
+}
 
 .nav-menu { display: flex; list-style: none; gap: 30px; }
 
